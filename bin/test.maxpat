@@ -9,7 +9,7 @@
 			"modernui" : 1
 		}
 ,
-		"rect" : [ 110.0, 335.0, 690.0, 462.0 ],
+		"rect" : [ 110.0, 335.0, 844.0, 462.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -38,6 +38,45 @@
 		"subpatcher_template" : "",
 		"boxes" : [ 			{
 				"box" : 				{
+					"id" : "obj-10",
+					"linecount" : 5,
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 291.0, 335.0, 446.0, 75.0 ],
+					"style" : "",
+					"text" : "to test :\n1. draw a wave in waveform~\n2. click \"write mybuf\" and copy the current buffer to shared memory.\n3. draw another wave in waveform~\n4. retrive the previous wave from the shared memory by clicking \"read mybuf\""
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-7",
+					"linecount" : 2,
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 30.0, 249.5, 224.0, 34.0 ],
+					"style" : "",
+					"text" : "both message must be followed by the name of buffer~"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-4",
+					"linecount" : 3,
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 387.0, 74.0, 446.0, 48.0 ],
+					"style" : "",
+					"text" : "the buffer~ stores floating point numbers thus shmem is float only.\nthe size of buffer~ must match the size of shared memory\nthe channel count of buffer must be 1"
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-6",
 					"maxclass" : "newobj",
 					"numinlets" : 1,
@@ -56,7 +95,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 210.0, 154.0, 69.0, 22.0 ],
+					"patching_rect" : [ 291.0, 151.0, 69.0, 22.0 ],
 					"style" : "",
 					"text" : "set mybuf"
 				}
@@ -70,7 +109,7 @@
 					"numinlets" : 5,
 					"numoutlets" : 6,
 					"outlettype" : [ "float", "float", "float", "float", "list", "" ],
-					"patching_rect" : [ 210.0, 189.0, 434.0, 131.0 ],
+					"patching_rect" : [ 291.0, 186.0, 434.0, 131.0 ],
 					"setmode" : 4,
 					"style" : ""
 				}
@@ -82,9 +121,9 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 22.0, 244.5, 175.0, 20.0 ],
+					"patching_rect" : [ 30.0, 227.5, 224.0, 20.0 ],
 					"style" : "",
-					"text" : "read means read from shmem"
+					"text" : "read means \"read from\" shared memory"
 				}
 
 			}
@@ -94,35 +133,9 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 22.0, 220.5, 163.0, 20.0 ],
+					"patching_rect" : [ 30.0, 205.5, 231.0, 20.0 ],
 					"style" : "",
-					"text" : "write means wrote to shmem"
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"id" : "obj-17",
-					"linecount" : 3,
-					"maxclass" : "comment",
-					"numinlets" : 1,
-					"numoutlets" : 0,
-					"patching_rect" : [ 210.0, 372.0, 346.0, 48.0 ],
-					"style" : "",
-					"text" : "if the size of buffer is bigger than shmem, the object copies to Nth object. if the size of buffer is small than shmem if fills the rest of memory space. "
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"id" : "obj-15",
-					"linecount" : 2,
-					"maxclass" : "comment",
-					"numinlets" : 1,
-					"numoutlets" : 0,
-					"patching_rect" : [ 210.0, 331.0, 446.0, 34.0 ],
-					"style" : "",
-					"text" : "this method is expecially useful when you try to visualize content of buffer with\nanother programm coded in C, C++ or other programming languages."
+					"text" : "write means \"write to\" shared memory"
 				}
 
 			}
@@ -133,9 +146,9 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 83.0, 7.0, 446.0, 34.0 ],
+					"patching_rect" : [ 26.0, 9.0, 564.0, 34.0 ],
 					"style" : "",
-					"text" : "shmem copies the content of buffer to shared memory so that another application access the data stored in buffer faster than network based method"
+					"text" : "shmem copies the content of buffer~ to shared memory so that another application access the data stored in buffer faster than network-based-methods such as OSC"
 				}
 
 			}
@@ -145,7 +158,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 403.0, 85.0, 241.0, 20.0 ],
+					"patching_rect" : [ 30.0, 324.0, 241.0, 20.0 ],
 					"style" : "",
 					"text" : "2nd arg: size of shared memory"
 				}
@@ -157,7 +170,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 403.0, 63.0, 241.0, 20.0 ],
+					"patching_rect" : [ 30.0, 302.0, 241.0, 20.0 ],
 					"style" : "",
 					"text" : "1st arg: name of shared memory"
 				}
@@ -196,7 +209,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 2,
 					"outlettype" : [ "float", "bang" ],
-					"patching_rect" : [ 210.0, 61.0, 158.0, 22.0 ],
+					"patching_rect" : [ 217.0, 74.0, 158.0, 22.0 ],
 					"style" : "",
 					"text" : "buffer~ mybuf @samps 256"
 				}

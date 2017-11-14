@@ -3,3 +3,5 @@ This object employs a named shared memory feature that windows API provides, thu
 This object is especially useful when you want to visualize the content of buffer~ with your own OpenGL software coded in C++, C, C# or Java.
 
 A copy of 256 floating point numbers from buffer~ to shared memory takes usually less than 1 nano second.
+
+![]("test.png")
