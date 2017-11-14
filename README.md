@@ -4,4 +4,4 @@ This object is especially useful when you want to visualize the content of buffe
 
 A copy of 256 floating point numbers from buffer~ to shared memory takes usually less than 1 nano second.
 
-![]("test.png")
+![]("test.PNG")
