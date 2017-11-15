@@ -14,8 +14,6 @@ typedef struct _shmem{
   t_object x_obj;
   long length;
   long datasize;
-  t_symbol *shmemName;
-  float* pBuf;
   HANDLE hMapFile;
 } t_shmem;
 
@@ -25,8 +23,6 @@ void shmem_free(t_shmem *x);
 void shmem_write(t_shmem *x, t_symbol* bufName);
 void shmem_read(t_shmem *x, t_symbol* bufName);
 t_buffer_obj * shmem_getObj(t_shmem *x, t_symbol *bufName);
-
-void create_shared_memory(t_shmem * x);
 
 // pointer to the class
 void *shmem_class;
@@ -54,34 +50,53 @@ void *shmem_new(t_symbol *shmemName, long length){
 	x = (t_shmem *)object_alloc(shmem_class);	// create a new instance of this object
 	x->length = length;
 	x->datasize = length * sizeof(float);
-	x->shmemName = shmemName;
-	create_shared_memory(x);
+	TCHAR * objectName = TEXT(shmemName->s_name);
+	x->hMapFile = CreateFileMapping(
+		INVALID_HANDLE_VALUE,   // use paging file
+		NULL,                   // default security
+		PAGE_READWRITE,         // read/write access
+		0,                      // maximum object size (high-order DWORD)
+		x->length,				// maximum object size (low-order DWORD)
+		objectName);			// name of mapping object
+
+	if (x->hMapFile == NULL) {
+		post("Could not create file mapping object (error:%d).\n", GetLastError());
+		return NULL;
+	}
 	return(x);
 }
+
+void shmem_free(t_shmem *x) {
+	CloseHandle(x->hMapFile);
+}
+
 
 // copy buffer to shared mem
 void shmem_write(t_shmem *x, t_symbol *bufName) {
 	t_buffer_obj *bufObj = shmem_getObj(x, bufName);
-	// critical session //
+	float* pBuf = (float*)MapViewOfFile(x->hMapFile, FILE_MAP_WRITE, 0, 0, x->length);
+
+	///////////// critical session
 	float* bufPtr = buffer_locksamples(bufObj);
-	CopyMemory((PVOID)x->pBuf, bufPtr, x->datasize);
+	CopyMemory(pBuf, bufPtr, x->datasize);
 	buffer_unlocksamples(bufObj);
-	//critical session //
+	///////////// critical session
+
+	UnmapViewOfFile(pBuf);
 }
 
+// copy buffer from shared mem
 void shmem_read(t_shmem *x, t_symbol *bufName) {
 	t_buffer_obj *bufObj =  shmem_getObj(x, bufName);
-	float* sharedDataPtr = (float*)MapViewOfFile(x->hMapFile, // handle to map object
-		FILE_MAP_ALL_ACCESS,  // read/write permission
-		0,
-		0,
-		x->length);
-	// critical session //
+	float* pBuf = (float*)MapViewOfFile(x->hMapFile, FILE_MAP_READ, 0, 0, x->length);
+
+	///////////// critical session
 	float* bufPtr = buffer_locksamples(bufObj);
-	CopyMemory(bufPtr, sharedDataPtr, x->datasize);
+	CopyMemory(bufPtr, pBuf, x->datasize);
 	buffer_unlocksamples(bufObj);
-	//critical session //
-	UnmapViewOfFile(sharedDataPtr);
+	///////////// critical session
+
+	UnmapViewOfFile(pBuf);
 	buffer_setdirty(bufObj);
 }
 
@@ -109,38 +124,4 @@ t_buffer_obj * shmem_getObj(t_shmem *x, t_symbol *bufName) {
 
 	object_free(bufRef);
 	return bufObj;
-}
-
-void shmem_free(t_shmem *x){
-	UnmapViewOfFile(x->pBuf);
-	CloseHandle(x->hMapFile);
-}
-
-void create_shared_memory(t_shmem * x) {
-
-	TCHAR * objectName = TEXT(x->shmemName->s_name);
-	x->hMapFile = CreateFileMapping(
-		INVALID_HANDLE_VALUE,   // use paging file
-		NULL,                   // default security
-		PAGE_READWRITE,         // read/write access
-		0,                      // maximum object size (high-order DWORD)
-		x->length,				// maximum object size (low-order DWORD)
-		objectName);			// name of mapping object
-
-	if (x->hMapFile == NULL) {
-		post("Could not create file mapping object (error:%d).\n", GetLastError());
-		return;
-	}
-
-	x->pBuf = (float*)MapViewOfFile(x->hMapFile,   // handle to map object
-		FILE_MAP_ALL_ACCESS, // read/write permission
-		0,
-		0,
-		x->length);
-
-	if(x->pBuf == NULL) {
-		post("Could not map view of file (error:%d).\n", GetLastError());
-		CloseHandle(x->hMapFile);
-		return;
-	}
 }
